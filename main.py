@@ -2,7 +2,8 @@
 import csv
 import requests
 from bs4 import BeautifulSoup
-from datetime import date
+from datetime import date, timedelta
+import dateparser
 
 # Step 2: Generating a URL with a function
 # You need to define a function that takes in one parameter: position
@@ -50,6 +51,16 @@ def extract_job_data(posting):
 			job_date = "-Not found-"
 		elif len(info) == 2:
 			job_date = info[0]
+			if job_date.find("Ny i dag") >= 0:
+				job_date = date.today()
+			elif job_date.find("en dag siden") >= 0:
+				job_date = date.today() - timedelta(days=1)
+			elif job_date.find("2 dager siden") >= 0:
+				job_date = date.today() - timedelta(days=2)
+			else:
+				job_date = dateparser.parse(job_date).strftime("%Y-%m-%d")
+			
+			# print(f"info[0] -> job_date: {info[0]} -> {job_date}")
 			location = info[1]
 		else:
 			location = "-Not implemented-"
@@ -82,8 +93,23 @@ def extract_job_data(posting):
 	except AttributeError:
 		link = "-Not found-"
 		job_type = "-Not found-"
+
+	try:
+		position_count_div = posting.find("div", class_="flex flex-col text-12")
+		position_count_spans = position_count_div.find_all("span")
+		if len(position_count_spans) >= 2:
+			position_count_text = position_count_spans[1].text.strip()
+			position_count_array = position_count_text.split(' ')
+			if len(position_count_array) >= 1:
+				position_count = int(position_count_array[0])
+			else:
+				position_count = -1
+		else:
+			position_count = -2
+	except AttributeError:
+		position_count = -3
 	
-	return job_title, company, location, description, job_date, is_deadline, job_type, link
+	return job_title, position_count, company, location, description, job_date, is_deadline, job_type, link
 
 # Step 4: Define the main function
 def main(position):
@@ -122,7 +148,7 @@ def main(position):
 		# Save the data as a csv file
 		with open('job_postings.csv', 'w', newline='', encoding='utf-8') as csvfile:
 			writer = csv.writer(csvfile)
-			writer.writerow(['Job Title', 'Company', 'Location', 'Description', 'Date', 'Deadline', 'Job Type', 'Link'])
+			writer.writerow(['Job Title', 'Position Count', 'Company', 'Location', 'Description', 'Date', 'Deadline', 'Job Type', 'Link'])
 			writer.writerows(job_data)
 		
 		print("Job postings scraped successfully.")
