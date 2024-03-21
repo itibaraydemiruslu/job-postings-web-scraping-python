@@ -1,9 +1,9 @@
 # Step 1: Import required libraries
-import csv
-import requests
 from bs4 import BeautifulSoup
-from datetime import date, timedelta
+import csv
 import dateparser
+from datetime import date, timedelta
+import requests
 
 # Step 2: Generating a URL with a function
 # You need to define a function that takes in one parameter: position

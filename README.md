@@ -25,6 +25,7 @@ The solution utilizes web scraping techniques with the BeautifulSoup library to 
 - requests
 - BeautifulSoup
 - csv
-
+- datetime
+- dateparser
 
 
