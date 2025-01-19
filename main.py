@@ -134,15 +134,6 @@ def main(position):
 		soup = BeautifulSoup(response.content, 'html.parser')
 		job_postings = soup.find_all('div', class_='flex flex-col')
 
-		# # Extract location's special url
-		# location_value = ""
-		# locations = soup.find("ul", class_="list u-ml16")
-		# for li in locations.find_all("li"):
-		# 	location_name = li.div.label.text.strip()
-		# 	if location.lower() in location_name.lower():
-		# 		location_value = li.div.label['for']
-		# 		location_value = location_value.replace("location-", "")
-
 		# Process each job postings to extract the relevant data
 		job_data = []
 		for posting in job_postings:
