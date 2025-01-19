@@ -34,17 +34,17 @@ def extract_job_data(posting):
 	Extracts job posting information as [job_title, company, location, description, job_date, is_deadline, job_type, link]
 	"""
 	try:
-		job_title = posting.find("a", class_="sf-search-ad-link link link--dark hover:no-underline").text.strip()
+		job_title = posting.find("a", class_="sf-search-ad-link s-text! hover:no-underline").text.strip()
 	except AttributeError:
 		job_title = "-Not found-"
 	
 	try:
-		company = posting.find("div", class_="flex flex-col text-12").span.text.strip()
+		company = posting.find("div", class_="flex flex-col text-xs").span.text.strip()
 	except AttributeError:
 		company = "-Not found-"
 	
 	try:
-		location_and_date = posting.find("div", class_="pr-44 order-first space-x-16 text-12 text-gray-500").text.strip()
+		location_and_date = posting.find("div", class_="pr-44 order-first space-x-16 text-xs s-text-subtle").text.strip()
 		info = location_and_date.split('|')
 		if len(info) == 1:
 			location = info[0]
@@ -70,7 +70,7 @@ def extract_job_data(posting):
 		job_date = "-Not found-"
 
 	try:
-		deadline = posting.find("span", class_="text-red-600").text.strip()
+		deadline = posting.find("span", class_="s-text-negative").span.text.strip()
 		job_date = date.today()
 		is_deadline = True
 	except AttributeError:
@@ -78,12 +78,12 @@ def extract_job_data(posting):
 		is_deadline = False
 	
 	try:
-		description = posting.find("a", class_="sf-search-ad-link link link--dark hover:no-underline").text.strip()
+		description = posting.find("div", class_="mb-8 flex justify-between space-x-12 whitespace-nowrap font-bold").span.text.strip()
 	except AttributeError:
 		description = "-Not found-"
 
 	try:
-		link = posting.find("a", class_="sf-search-ad-link link link--dark hover:no-underline")['href']
+		link = posting.find("a", class_="sf-search-ad-link s-text! hover:no-underline")['href']
 		if link.find("parttime") >= 0:
 			job_type = "parttime"
 		elif link.find("fulltime") >= 0:
@@ -94,11 +94,15 @@ def extract_job_data(posting):
 		link = "-Not found-"
 		job_type = "-Not found-"
 
+	# Find the div containing position details
 	try:
-		position_count_div = posting.find("div", class_="flex flex-col text-12")
+		position_count_div = posting.find("div", class_="flex flex-col text-xs")
 		position_count_spans = position_count_div.find_all("span")
+	    # Ensure there are at least two spans and extract the second one
 		if len(position_count_spans) >= 2:
+			# e.g., "1 stilling"
 			position_count_text = position_count_spans[1].text.strip()
+			# Split the text and extract the first part as the number
 			position_count_array = position_count_text.split(' ')
 			if len(position_count_array) >= 1:
 				position_count = int(position_count_array[0])
@@ -108,7 +112,7 @@ def extract_job_data(posting):
 			position_count = -2
 	except AttributeError:
 		position_count = -3
-	
+
 	return job_title, position_count, company, location, description, job_date, is_deadline, job_type, link
 
 # Step 4: Define the main function
